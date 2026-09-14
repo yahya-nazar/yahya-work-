@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cas Services — برمجة · تصميم · مونتاج</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0a09;
+    --char:#151110;
+    --parchment:#e7dcc3;
+    --parchment-dim:#c9bb98;
+    --blood:#0c6e63;
+    --blood-bright:#22d3b8;
+    --brass:#b08a4e;
+    --brass-dim:#7d6538;
+    --line: rgba(231,220,195,0.14);
+    --glow: rgba(34,211,184,0.6);
+    --radius: 2px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(12,110,99,0.22), transparent 45%),
+      radial-gradient(ellipse at 100% 10%, rgba(176,138,78,0.08), transparent 40%),
+      var(--ink);
+    color: var(--parchment);
+    font-family: 'Cairo', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+
+  a{ color: inherit; text-decoration:none; }
+
+  ::selection{ background: var(--blood); color: var(--parchment); }
+
+  .wrap{
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- grain overlay ---------- */
+  .grain{
+    position:fixed; inset:0; pointer-events:none; z-index:50;
+    opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position: sticky; top:0; z-index:40;
+    background: linear-gradient(180deg, rgba(12,10,9,0.96), rgba(12,10,9,0.85));
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(6px);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 0;
+  }
+  .brand{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700; font-size:1.05rem; letter-spacing:0.5px;
+    color: var(--parchment);
+  }
+  .brand span{ color: var(--blood-bright); }
+  .navlinks{ display:flex; gap:28px; font-size:0.92rem; color: var(--parchment-dim); }
+  .navlinks a{ transition: color .25s ease; position:relative; }
+  .navlinks a:hover{ color: var(--parchment); }
+  .navlinks a:focus-visible, a:focus-visible{ outline: 1px solid var(--brass); outline-offset:4px; }
+  .navlinks{ display:none; }
+  @media(min-width:720px){ .navlinks{ display:flex; } }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    padding: 84px 0 60px;
+    display:grid;
+    gap: 40px;
+    align-items:center;
+  }
+  @media(min-width:860px){
+    .hero{ grid-template-columns: 1.1fr 0.9fr; padding: 120px 0 90px; }
+  }
+
+  .eyebrow-mark{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--brass);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 18px;
+  }
+  .eyebrow-mark::before{
+    content:""; width:22px; height:1px; background: var(--brass-dim);
+  }
+
+  h1.title{
+    font-family:'Cairo', sans-serif;
+    font-weight:900;
+    font-size: clamp(2.6rem, 8vw, 4.4rem);
+    line-height:1.1;
+    letter-spacing: -0.5px;
+    color: var(--parchment);
+    text-shadow: 0 0 34px rgba(34,211,184,0.3);
+  }
+  h1.title em{
+    font-style: normal;
+    color: var(--blood-bright);
+  }
+
+  .lede{
+    margin-top: 22px;
+    max-width: 46ch;
+    color: var(--parchment-dim);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .cta-row{ display:flex; gap:14px; margin-top:34px; flex-wrap:wrap; }
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem;
+    padding: 13px 22px;
+    border: 1px solid var(--brass-dim);
+    color: var(--parchment);
+    transition: all .25s ease;
+  }
+  .btn.solid{
+    background: var(--blood);
+    border-color: var(--blood);
+  }
+  .btn.solid:hover{ background: var(--blood-bright); box-shadow: 0 0 24px var(--glow); }
+  .btn.ghost:hover{ border-color: var(--brass); color: var(--brass); }
+
+  /* devil's trap sigil */
+  .sigil-holder{
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .sigil-holder svg{
+    width: min(340px, 78vw);
+    height: auto;
+    filter: drop-shadow(0 0 18px rgba(124,20,32,0.35));
+    animation: turn 90s linear infinite;
+  }
+  @keyframes turn{ to{ transform: rotate(360deg); } }
+  .sigil-holder .ring2{ animation: turn-rev 60s linear infinite; }
+  @keyframes turn-rev{ to{ transform: rotate(-360deg); } }
+
+  /* ---------- section shell ---------- */
+  section{ padding: 74px 0; border-top: 1px solid var(--line); }
+  .sec-head{ margin-bottom: 44px; }
+  .sec-num{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; color: var(--brass);
+  }
+  .sec-title{
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 900; margin-top: 8px;
+    letter-spacing: -0.3px;
+    color: var(--parchment);
+  }
+  .sec-desc{ color: var(--parchment-dim); max-width: 60ch; margin-top:12px; font-size:1.05rem; }
+
+  /* ---------- services (journal entries) ---------- */
+  .entries{ display:grid; gap: 1px; background: var(--line); border:1px solid var(--line); }
+  .entry{
+    background: var(--ink);
+    padding: 30px 26px;
+    display:grid;
+    gap: 14px;
+    position: relative;
+    transition: background .3s ease;
+  }
+  .entry:hover{ background: var(--char); }
+  @media(min-width:760px){
+    .entries{ grid-template-columns: repeat(3, 1fr); }
+  }
+  .entry .mark{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--blood-bright);
+    font-size:1.6rem;
+  }
+  .entry h3{ font-size:1.5rem; font-weight:800; color: var(--parchment); }
+  .entry p{ color: var(--parchment-dim); font-size:1rem; }
+  .entry ul{ list-style:none; margin-top:6px; display:grid; gap:6px; }
+  .entry li{
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem; color: var(--brass);
+    display:flex; align-items:center; gap:8px;
+  }
+  .entry li::before{ content:"—"; color: var(--brass-dim); }
+
+  /* ---------- process ---------- */
+  .process-line{
+    position:relative;
+    border-inline-start: 1px solid var(--line);
+    padding-inline-start: 30px;
+    display:grid; gap: 36px;
+  }
+  .step{ position:relative; }
+  .step::before{
+    content:"";
+    position:absolute; inset-inline-start:-36px; top:4px;
+    width:9px; height:9px; border-radius:50%;
+    background: var(--blood-bright);
+    box-shadow: 0 0 10px var(--glow);
+  }
+  .step h4{ color: var(--parchment); font-size:1.3rem; font-weight:800; margin-bottom:6px; }
+  .step p{ color: var(--parchment-dim); font-size:0.92rem; max-width: 56ch; }
+  .step .tag{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--brass); }
+
+  /* ---------- work grid ---------- */
+  .work-grid{ display:grid; gap: 18px; }
+  @media(min-width:700px){ .work-grid{ grid-template-columns: repeat(2, 1fr); } }
+  .work-card{
+    border: 1px solid var(--line);
+    padding: 24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .work-card::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(135deg, transparent 60%, rgba(34,211,184,0.14));
+    opacity:0; transition: opacity .3s ease;
+  }
+  .work-card:hover::after{ opacity:1; }
+  .work-card .k{ font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--brass); }
+  .work-card h4{ margin-top:10px; font-size:1.35rem; font-weight:800; color:var(--parchment); }
+  .work-card p{ margin-top:8px; color: var(--parchment-dim); font-size:0.98rem; }
+
+  /* ---------- contact ---------- */
+  .contact-box{
+    border: 1px solid var(--brass-dim);
+    padding: 40px 30px;
+    position:relative;
+    background: linear-gradient(180deg, rgba(12,110,99,0.1), transparent);
+  }
+  .contact-box h3{ font-size:2rem; font-weight:900; color:var(--parchment); margin-bottom:14px; }
+  .contact-box p{ color: var(--parchment-dim); max-width: 50ch; margin-bottom: 26px; font-size:1.05rem; }
+  .contact-links{ display:grid; gap:16px; font-family:'JetBrains Mono', monospace; font-size:1.1rem; font-weight:700; }
+  .contact-links a{ color: var(--parchment); border-bottom:1px dotted var(--brass-dim); width:fit-content; padding-bottom:2px; transition: color .2s ease, border-color .2s ease; }
+  .contact-links a:hover{ color: var(--blood-bright); border-color: var(--blood-bright); }
+
+  footer{
+    padding: 30px 0 50px;
+    text-align:center;
+    color: var(--parchment-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.75rem;
+    border-top: 1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<header>
+  <nav class="wrap">
+    <div class="brand">CAS <span>//</span> SERVICES</div>
+    <div class="navlinks">
+      <a href="#services">الخدمات</a>
+      <a href="#process">طريقة العمل</a>
+      <a href="#work">أعمال</a>
+      <a href="#contact">تواصل</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <section class="hero wrap" style="border-top:none;">
+    <div>
+      <div class="eyebrow-mark">مؤسّسة لخدمات رقمية غير تقليدية</div>
+      <h1 class="title">نصطاد المشاكل التقنية، <em>ونغلق البوابة</em> خلفها.</h1>
+      <p class="lede">Cas Services بيت صغير لصنّاع الويب: برمجة أنظمة ومواقع، تصميم هوية بصرية، ومونتاج فيديو — بعقلية دقيقة، وتنفيذ ما بيرجع فيه.</p>
+      <div class="cta-row">
+        <a href="#contact" class="btn solid">ابدأ مشروعك</a>
+        <a href="#services" class="btn ghost">شوف الخدمات</a>
+      </div>
+    </div>
+
+    <div class="sigil-holder" aria-hidden="true">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring2" cx="100" cy="100" r="92" fill="none" stroke="#7d6538" stroke-width="0.6" stroke-dasharray="2 4"/>
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#b08a4e" stroke-width="1"/>
+        <circle cx="100" cy="100" r="70" fill="none" stroke="#22d3b8" stroke-width="0.6"/>
+        <polygon points="100,25 170,145 30,145" fill="none" stroke="#22d3b8" stroke-width="1"/>
+        <polygon points="100,175 30,55 170,55" fill="none" stroke="#22d3b8" stroke-width="1"/>
+        <circle cx="100" cy="100" r="34" fill="none" stroke="#b08a4e" stroke-width="0.8"/>
+        <circle cx="100" cy="100" r="3" fill="#22d3b8"/>
+      </svg>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">01 — الخدمات</div>
+        <h2 class="sec-title">ثلاث حرف، بيت واحد</h2>
+        <p class="sec-desc">كل خدمة عندنا صفحة مستقلة بدفتر العمل — منفصلة بالتنفيذ، متصلة بالهدف.</p>
+      </div>
+
+      <div class="entries">
+        <article class="entry">
+          <div class="mark">§</div>
+          <h3>برمجة وتطوير</h3>
+          <p>مواقع، تطبيقات ويب، ولوحات تحكم — من الفكرة للنشر، بكود نظيف وقابل للصيانة.</p>
+          <ul>
+            <li>مواقع ومتاجر إلكترونية</li>
+            <li>أنظمة إدارة مخصصة</li>
+            <li>ربط قواعد بيانات وAPI</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <div class="mark">✦</div>
+          <h3>تصميم وهوية</h3>
+          <p>هوية بصرية تحكي قصة المشروع قبل ما حد يقرأ كلمة، وواجهات مستخدم واضحة ومريحة.</p>
+          <ul>
+            <li>شعارات وهوية بصرية</li>
+            <li>تصميم واجهات UI/UX</li>
+            <li>محتوى بصري لمنصات التواصل</li>
+          </ul>
+        </article>
+
+        <article class="entry">
+          <div class="mark">▣</div>
+          <h3>مونتاج وفيديو</h3>
+          <p>قص وتركيب وتلوين يخدم القصة، من فيديو قصير لسوشال ميديا لمحتوى طويل احترافي.</p>
+          <ul>
+            <li>مونتاج ريلز وشورتس</li>
+            <li>موشن جرافيك بسيط</li>
+            <li>تصحيح ألوان وصوت</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">02 — طريقة العمل</div>
+        <h2 class="sec-title">أربع خطوات، ما فيها لخبطة</h2>
+      </div>
+
+      <div class="process-line">
+        <div class="step">
+          <div class="tag">STEP 01</div>
+          <h4>الاستماع والتشخيص</h4>
+          <p>نسمع المشكلة أو الفكرة كاملة قبل ما نقترح أي حل — حتى لو احتاج الأمر أسئلة كثيرة.</p>
+        </div>
+        <div class="step">
+          <div class="tag">STEP 02</div>
+          <h4>خطة ومسودة</h4>
+          <p>نحدد النطاق والوقت والتكلفة بوضوح، ونعرض مسودة أولية قبل التنفيذ الكامل.</p>
+        </div>
+        <div class="step">
+          <div class="tag">STEP 03</div>
+          <h4>تنفيذ ومراجعات</h4>
+          <p>تنفيذ فعلي مع نقاط مراجعة على طول الطريق، مش مفاجأة بآخر يوم.</p>
+        </div>
+        <div class="step">
+          <div class="tag">STEP 04</div>
+          <h4>تسليم ودعم</h4>
+          <p>تسليم نظيف، وشرح لكل شي، ومتابعة بعد التسليم لأي تعديل بسيط.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-num">03 — أعمال مختارة</div>
+        <h2 class="sec-title">ملفات من الدفتر</h2>
+        <p class="sec-desc">مساحة جاهزة لعرض مشاريعك القادمة — استبدل هذه البطاقات بمشاريعك الحقيقية أول ما تجهز.</p>
+      </div>
+
+      <div class="work-grid">
+        <div class="work-card">
+          <div class="k">WEB / 2026</div>
+          <h4>متجر إلكتروني متكامل</h4>
+          <p>واجهة سريعة وبسيطة، مربوطة بنظام دفع ومخزون مباشر.</p>
+        </div>
+        <div class="work-card">
+          <div class="k">BRAND / 2026</div>
+          <h4>هوية بصرية لمطعم محلي</h4>
+          <p>شعار وقائمة وتصميم سوشال ميديا بنفس الروح البصرية.</p>
+        </div>
+        <div class="work-card">
+          <div class="k">VIDEO / 2026</div>
+          <h4>سلسلة ريلز تسويقية</h4>
+          <p>مونتاج سريع الإيقاع لحملة إطلاق منتج جديد.</p>
+        </div>
+        <div class="work-card">
+          <div class="k">SYSTEM / 2026</div>
+          <h4>لوحة تحكم داخلية</h4>
+          <p>نظام لمتابعة الطلبات والموظفين بواجهة عربية كاملة.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-box">
+        <h3>عندك مشروع بينتظر يشوف النور؟</h3>
+        <p>ابعتلنا تفاصيل بسيطة عن الفكرة، ونرجعلك خلال يوم عمل بخطة أولية وتوقيت تقريبي.</p>
+        <div class="contact-links">
+          <a href="https://t.me/dithcry" target="_blank" rel="noopener">تيليجرام — t.me/dithcry</a>
+          <a href="https://www.instagram.com/y._n_7?stkn=NDZvcTJhNzcybXBo" target="_blank" rel="noopener">انستقرام — @y._n_7</a>
+          <a href="tel:07725769299">هاتف — 07725769299</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 CAS SERVICES — كل الحقوق محفوظة
+</footer>
+
+</body>
+</html>
